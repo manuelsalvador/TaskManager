@@ -15,8 +15,8 @@ class TasksTableSeeder extends Seeder
     public function run()
     {
         DB::table('tasks')->insert([
-            'title' => 'task di prova',
-            'description' => 'una bella descrizione per un bel task di prova',
+            'title' => 'Task di prova',
+            'description' => 'Una descrizione per un di prova',
             'priority' => '1',
             'state' => '1',
             'developer_id' => '2',

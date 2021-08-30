@@ -15,11 +15,11 @@ class CustomerTableSeeder extends Seeder
     public function run()
     {
         DB::table('customers')->insert([
-            'name' => 'Mark',
-            'surname' => 'Antonio',
+            'name' => 'Carlo',
+            'surname' => 'Rossi',
             'address' => 'via di qui',
             'phone' => '0432111111',
-            'email' => 'mark@antonio.it',
+            'email' => 'carlo@rossi.it',
         ]);
     }
 }

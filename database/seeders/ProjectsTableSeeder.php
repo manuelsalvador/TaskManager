@@ -16,8 +16,8 @@ class ProjectsTableSeeder extends Seeder
     public function run()
     {
         DB::table('projects')->insert([
-            'title' => 'Progetto bello',
-            'description' => 'Un bellissimo progetto, il più bello dei progetti',
+            'title' => 'Progetto prova',
+            'description' => 'Un progetto di prova',
             'customer_id' => '1'
         ]);
 
