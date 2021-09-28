@@ -38,12 +38,18 @@
                             <th>Priority</th>
                             <th>Developer</th>
                         </tr>
-                        <tr><td>{{$task->title}}</td>
-                        <td>{{$task->description}}</td>
-                        <td>{{$project[0]->title}}</td>
-                        <td>{{$state[0]->state}}</td>
-                        <td>{{$priority[0]->priority}}</td>
-                        <td>{{$developer[0]->name}}</td></tr>
+                        <tr>
+                            <td>{{$task->title}}</td>
+                            <td>{{$task->description}}</td>
+                            <td>{{$project->title}}</td>
+                            <td>{{$state->state}}</td>
+                            <td>{{$priority->priority}}</td>
+                            <td>
+                                @if(!empty($developer[0]))
+                                    {{$developer[0]->name}}
+                                @endif
+                            </td>
+                        </tr>
                     </table>
                     <a href="/tasks/{{$task->id}}/edit">
                             <button class="btn btn-success btn-submit" style="margin-top: 20px;">Edit</button>

@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Project;
 use App\Models\Customer;
 use App\Models\Role;
+use App\Http\Requests\StoreProjectRequest;
+
 
 class ProjectController extends Controller
 {
@@ -14,9 +16,7 @@ class ProjectController extends Controller
     public function __construct(){
         //$this->middleware('auth')->except('index', 'show', 'create', 'store');
     }
-    public function PM() {
-        return Role::where('role', "Project Manager")->pluck('id')[0];
-    }
+
     /**
      * Display a listing of the resource.
      *
@@ -24,7 +24,7 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        if(Auth::user()->role == $this->PM()){
+        if(Auth::user()->role == Role::PM()){
             $projects = Project::get();
             return view('projects.index', compact('projects'));
         }else{
@@ -39,7 +39,11 @@ class ProjectController extends Controller
      */
     public function create()
     {   
-        if(Auth::user()->role == $this->PM()){
+        if(Customer::get()->count() < 1){
+            return redirect()->back()->with('error', 'You can not insert Projects without existing Customers!');
+        }
+
+        if(Auth::user()->role == Role::PM()){
             $customers = Customer::get();
             return view('projects.create', compact('customers'));
         }else{
@@ -53,23 +57,19 @@ class ProjectController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreProjectRequest $request)
     {
-        if(Auth::user()->role == $this->PM()){
-            $post = new Project;
-            $post->title = $request->input('title');
-            $post->description = $request->input('description');
-            $post->customer_id = $request->input('customer_id');
-            $post->save();
+        if(Auth::user()->role == Role::PM()){
 
-            if($post){
+            $validated = $request->validated();
+
+            if($validated){
+                Project::create($validated);
                 return redirect('projects');
-            }else{
-                return redirect('dashboard');
             }
-        }else{
-            return redirect('dashboard');
         }
+
+        return redirect('dashboard');
     }
 
     /**
@@ -80,7 +80,7 @@ class ProjectController extends Controller
      */
     public function show($id)
     {
-        if(Auth::user()->role == $this->PM()){
+        if(Auth::user()->role == Role::PM()){
             $project = Project::findOrFail($id);
             $customer = Customer::where('id', $project->customer_id)->get();
             return view('projects.show', compact('project','customer'));
@@ -97,7 +97,7 @@ class ProjectController extends Controller
      */
     public function edit($id)
     {
-        if(Auth::user()->role == $this->PM()){
+        if(Auth::user()->role == Role::PM()){
             $project = Project::findOrFail($id);
 
             $customerSelected = Customer::where('id', $project->customer_id)->get();
@@ -116,23 +116,20 @@ class ProjectController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(StoreProjectRequest $request, $id)
     {
-        if(auth::user()->role == $this->PM()){
+        if(Auth::user()->role == Role::PM()){
             $post = Project::findOrFail($id);
-            $post->title = $request->input('title');
-            $post->description = $request->input('description');
-            $post->customer_id = $request->input('customer_id');
-            $post->save();
+            $post->fill($request->validated());
+            $isSaved = $post->save();
 
-            if($post){
+            if($isSaved){
                 return redirect('projects');
-            }else{
-                return redirect('dashboard');
             }
-        }else{
-            return redirect('dashboard');
+
         }
+
+        return redirect('dashboard');
     }
 
     /**
@@ -143,6 +140,7 @@ class ProjectController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Project::where('id', $id)->delete();
+        return redirect('projects');
     }
 }

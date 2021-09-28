@@ -45,7 +45,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <strong>Name *:</strong>
-                                        <input type="text" name="name" class="form-control" placeholder="Name" required value="{{ old('name') }}">
+                                        <input type="text" name="name" class="form-control" placeholder="Name" value="{{ old('name') }}">
                                         @if ($errors->has('name'))
                                             <span class="text-danger">{{ $errors->first('name') }}</span>
                                         @endif
@@ -81,7 +81,7 @@
 
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                    <strong>Email:</strong>
+                                    <strong>Email *:</strong>
                                     <input type="text" name="email" class="form-control" placeholder="Email" value="{{ old('email') }}">
                                         @if ($errors->has('email'))
                                             <span class="text-danger">{{ $errors->first('email') }}</span>

@@ -22,11 +22,10 @@
             <div class="col-8 offset-2 mt-5">
                 <div class="card">
                     <div class="card-header bg-info">
-                    <a href="javascript:history.back()"><i class="bi bi-arrow-left-circle" style="color:white"></i></a>
+                        <a href="javascript:history.back()"><i class="bi bi-arrow-left-circle" style="color:white"></i></a>
                         <h3 class="text-white">Edit task</h3>
                     </div>
                     <div class="card-body">
-                        
                         @if(Session::has('success'))
                         <div class="alert alert-success">
                             {{ Session::get('success') }}
@@ -36,6 +35,10 @@
                         </div>
                         @endif
                    
+                        @if (session('error'))
+                            <div class="alert alert-danger">{{ session('error') }}</div>
+                        @endif
+
                         <form method="POST" action="{{ route('tasks.edit.update', $task->id) }}">
                   
                             {{ csrf_field() }}
@@ -44,7 +47,7 @@
                                     <div class="form-group">
                                         <strong>Title *:</strong>
                                         @if (Auth::user()->role == 1)
-                                        <input type="text" name="title" class="form-control" placeholder="Title" required value="{{ $task->title }}">
+                                        <input type="text" name="title" class="form-control" placeholder="Title" value="{{ $task->title }}">
                                         @else
                                         <p>{{ $task->title }}</p>
                                         @endif
@@ -71,9 +74,9 @@
                                     <div class="form-group">
                                     <strong>Priority *:</strong>
                                     @if (Auth::user()->role == 1)
-                                    <select name="priority" id="priority" required class="form-control">
+                                    <select name="priority" id="priority" class="form-control">
                                     @foreach ($priority as $key)
-                                        <option value="{{ $key->id }}" {{$prioritySelected[0]->id == $key->id ? 'selected' : ''}}> 
+                                        <option value="{{ $key->id }}" {{$task->priority == $key->id ? 'selected' : ''}}> 
                                             {{ $key->priority }} 
                                         </option>
                                     @endforeach 
@@ -85,14 +88,14 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                    <strong>State *:</strong>
-                                    <select name="state" id="state" required class="form-control">
-                                    @foreach ($state as $key)
-                                            <option value="{{ $key->id }}" {{$stateSelected[0]->id == $key->id ? 'selected' : ''}}> 
-                                                {{ $key->state }} 
-                                            </option>
-                                        @endforeach 
-                                    </select>
+                                        <strong>State *:</strong>
+                                        <select name="state" id="state" class="form-control">
+                                            @foreach ($state as $key)
+                                                <option value="{{ $key->id }}" {{$task->state == $key->id ? 'selected' : ''}}> 
+                                                    {{ $key->state }} 
+                                                </option>
+                                            @endforeach 
+                                        </select>
                                     </div>
                                 </div>
 
@@ -100,9 +103,9 @@
                                     <div class="form-group">
                                     <strong>Project *:</strong>
                                     @if (Auth::user()->role == 1)
-                                        <select class="form-control" required name="project_id">
+                                        <select class="form-control" name="project_id">
                                             @foreach ($project as $key)
-                                                <option value="{{ $key->id }}" {{$projectSelected[0]->id == $key->id ? 'selected' : ''}}> 
+                                                <option value="{{ $key->id }}" {{$task->project_id == $key->id ? 'selected' : ''}}> 
                                                     {{ $key->title  }} 
                                                 </option>
                                             @endforeach    
@@ -115,14 +118,15 @@
 
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                    <strong>Developer *:</strong>
+                                    <strong>Developer:</strong>
                                     @if (Auth::user()->role == 1)
-                                        <select class="form-control" required name="developer_id">
-                                            @foreach ($developer as $key)
-                                                <option value="{{ $key->id }}" {{$developerSelected[0]->id == $key->id ? 'selected' : ''}}> 
+                                        <select class="form-control" name="user_id">
+                                            <option></option>
+                                            @foreach ($developer as $key)                    
+                                                <option value="{{ $key->id }}" {{ !empty($developerSelected[0]) ? ($developerSelected[0]->id == $key->id ? 'selected' : '') : ''}}> 
                                                     {{ $key->name }} 
                                                 </option>
-                                            @endforeach    
+                                            @endforeach
                                         </select>
                                         @else
                                         <p>{{$developerSelected[0]->name}}</p>
@@ -135,6 +139,7 @@
                                 <button class="btn btn-success btn-submit">Save</button>
                             </div>
                         </form>
+
                     </div>
                 </div>
             </div>

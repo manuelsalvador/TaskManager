@@ -23,7 +23,7 @@
 @include('layouts.navigation')
 <div class="container">
     <div class="row mt-5 mb-5 justify-content-center">
-        <div class="col-md-12 mt-5">
+        <div class="col-md-9 mt-5">
             <div class="card">
                 <div class="card-header bg-info">
                 <a href="javascript:history.back()"><i class="bi bi-arrow-left-circle" style="color:white"></i></a>
@@ -48,7 +48,7 @@
 
                             @if (Auth::user()->role == 1)
                             @foreach($tasks as $task)
-                                @if($task->developer_id == $user->id)
+                                @if($task->user_id == $user->id)
                                 <tr>
                                     <td><a href="/tasks/{{$task->id}}">{{$task->title}}</a></td>
                                     <td>{{$states->where('id', $task->state)->pluck('state')[0]}}</td>
@@ -62,7 +62,7 @@
 
                             @if (Auth::user()->role == 2)
                             @foreach($tasks as $task)
-                                @if($task->developer_id == $user->id)
+                                @if($task->user_id == $user->id)
                                 <tr>
                                     <td>{{$task->title}}</td>
                                     <td>{{$states->where('id', $task->state)->pluck('state')[0]}}</td>
@@ -77,6 +77,36 @@
                             </table>
                             <p></p>
                         @endforeach
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="col-md-3 mt-5">
+            <div class="card">
+                <div class="card-header bg-info" style="height: 73px; padding-top:20px;">
+                    <h3 class="text-white">Not assigned</h3>
+                </div>
+                <div class="card-body">
+                        <table class="customTable">
+                            <tr>
+                            <th>Task</th>
+                            </tr>
+                            @foreach($tasks as $task)
+                                @if($task->user_id == NULL)
+                                    @if (Auth::user()->role == 1)
+                                        <tr>
+                                            <td><a href="/tasks/{{$task->id}}">{{$task->title}}</a></td>
+                                        </tr>
+                                        @else
+                                        <tr>
+                                            <td>{{$task->title}}</td>
+                                        </tr>
+                                    @endif
+                                @endif
+                            @endforeach
+                            </table>
                 </div>
             </div>
         </div>

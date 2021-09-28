@@ -43,7 +43,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <strong>Name *:</strong>
-                                        <input type="text" name="name" class="form-control" placeholder="Name" required value="{{ $user->name }}">
+                                        <input type="text" name="name" class="form-control" required placeholder="Name" value="{{ $user->name }}">
                                         @if ($errors->has('name'))
                                             <span class="text-danger">{{ $errors->first('name') }}</span>
                                         @endif
@@ -53,7 +53,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <strong>Email *:</strong>
-                                        <input type="text" name="email" class="form-control" placeholder="Email" required value="{{ $user->email }}">
+                                        <input type="text" name="email" class="form-control" required placeholder="Email" value="{{ $user->email }}">
                                         @if ($errors->has('email'))
                                             <span class="text-danger">{{ $errors->first('email') }}</span>
                                         @endif
@@ -62,7 +62,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <strong>Password *:</strong>
-                                        <input type="password" name="password" class="form-control" placeholder="Password" required >
+                                        <input type="password" name="password" class="form-control" required placeholder="Password">
                                         @if ($errors->has('password'))
                                             <span class="text-danger">{{ $errors->first('password') }}</span>
                                         @endif
@@ -71,7 +71,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <strong>Role *:</strong>
-                                        <select name="role_id" id="role_id" required class="form-control">
+                                        <select name="role_id" id="role_id" class="form-control">
                                         @foreach ($role as $key)
                                             <option value="{{ $key->id }}" {{$roleSelected[0]->id == $key->id ? 'selected' : ''}}> 
                                                 {{ $key->role }}

@@ -5,16 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\StoreUserRequest;
 
 use App\Models\Role;
 use App\Models\User;
 
 class UserController extends Controller
 {
-    public function PM() {
-
-        return Role::where('role', "Project Manager")->pluck('id')[0];
-    }
 
     public function __construct(){
         //$this->middleware('auth')->except('index', 'show', 'create', 'store');
@@ -27,11 +24,12 @@ class UserController extends Controller
      */
     public function index()
     {
-        if(Auth::user()->role == $this->PM()){
+        if(Auth::user()->role == Role::PM()){
             $users = User::get();
             return view('users.index', compact('users'));
         }else{
             return view('dashboard');
+
         }
     }
 
@@ -42,7 +40,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        if(Auth::user()->role == $this->PM()){
+        if(Auth::user()->role == Role::PM()){
             $roles = Role::get();
             return view('users.create', compact('roles'));
         }else{
@@ -58,7 +56,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        if(Auth::user()->role == $this->PM()){
+        if(Auth::user()->role == Role::PM()){
             $post = new User;
             $post->name = $request->input('name');
             $post->email = $request->input('email');
@@ -66,14 +64,13 @@ class UserController extends Controller
             $post->role = $request->input('role_id');
             $post->save();
 
+
             if($post){
                 return redirect('users');
-            }else{
-                return redirect('dashboard');
             }
-        }else{
-            return redirect('dashboard');
         }
+
+        return redirect('dashboard');
     }
 
     /**
@@ -84,7 +81,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        if(Auth::user()->role == $this->PM()){
+        if(Auth::user()->role == Role::PM()){
             $user = User::findOrFail($id);
             $role = Role::where('id', $user->role)->get();
             return view('users.show', compact('user', 'role'));
@@ -101,12 +98,12 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        if(Auth::user()->role == $this->PM()){
+        if(Auth::user()->role == Role::PM()){
             $user = User::findOrFail($id);
-        $roleSelected = Role::where('id', $user->role)->get();
-        $role = Role::get();
+            $roleSelected = Role::where('id', $user->role)->get();
+            $role = Role::get();
 
-        return view('users.edit', compact('user', 'roleSelected','role'));
+            return view('users.edit', compact('user', 'roleSelected','role'));
         }else{
             return redirect('dashboard');
         }
@@ -121,7 +118,8 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if(Auth::user()->role == $this->PM()){
+
+        if(Auth::user()->role == Role::PM()){
 
             $post = User::findOrFail($id);
             $post->name = $request->input('name');
@@ -130,15 +128,14 @@ class UserController extends Controller
             $post->role = $request->input('role_id');
             $post->save();
 
+
             if($post){
                  return redirect('users');
-            }else{
-                return redirect('dashboard');
             }
 
-        }else{
-            return redirect('dashboard');
         }
+
+        return redirect('dashboard');
     }
 
     /**
@@ -149,6 +146,7 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        //
+        User::where('id', $id)->delete();
+        return redirect('users');
     }
 }

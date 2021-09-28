@@ -19,7 +19,7 @@ class TasksTableSeeder extends Seeder
             'description' => 'Una descrizione per un di prova',
             'priority' => '1',
             'state' => '1',
-            'developer_id' => '2',
+            'user_id' => null,
             'project_id' => '1',
         ]);
     }

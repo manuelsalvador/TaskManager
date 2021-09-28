@@ -15,8 +15,36 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha512-MoRNloxbStBcD8z3M/2BmnT+rg4IsMxPkXaGh2zD6LGNNFE80W3onsAhRcMAMrSoyWL9xD7Ert0men7vR8LUZg==" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
     <!-- Scripts -->
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.6.0.js"></script>
     <script src="{{ asset('js/app.js') }}" defer></script>
 
+    <script type="text/javascript">
+
+        function closeModal(){
+            $('#delete-modal').hide();
+        }
+
+        var id;
+        function showTask(idTask){
+            $('#delete-modal').show();
+            id = idTask;
+        }
+
+        function deleteTask(){
+            let url = "{{ route('customers.destroy', ':id') }}";
+            url = url.replace(':id', id);
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {
+                '_method': 'DELETE',
+                '_token': "{{ csrf_token() }}"},
+                success: function(){
+                    document.location.href = "{{route('customers')}}"}
+                });
+            }
+    </script>
    
 </head>
 <body>
@@ -37,18 +65,42 @@
                     @endif
                     <ul class="list-group">
                         @foreach($customers as $customer)
-                        <a href="/customers/{{$customer->id}}">
-                        <li class="list-group-item">
-                            {{$customer->name}} {{$customer->surname}}
-                        </li>
-                    </a>
+                        <div class="row">
+                            <div class="col-md-11">
+                            <a href="/customers/{{$customer->id}}">
+                                <li class="list-group-item">
+                                    {{$customer->name}} {{$customer->surname}}
+                                </li>
+                            </a>
+                            </div>
+                            <div class="col-md-1">
+                                <button onclick="showTask({{$customer->id}})" class="btn btn-danger btn-submit" style="border-radius:20px">X</button>
+                            </div>
+                        </div>
                         @endforeach
                     </ul>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
+<div class="modal" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="titleLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="titleLabel">Attention</h5>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this customer?</br>
+        All related projects and tasks will be removed.
+      </div>
+      <div class="modal-footer">
+        <button type="button" onclick="closeModal()" class="btn btn-secondary" data-dismiss="modal">No</button>
+        <button type="button" onclick="deleteTask()" class="btn btn-success" data-dismiss="modal">Yes</button>
+      </div>
+    </div>
+  </div>
 </div>
 </body>
 </html>

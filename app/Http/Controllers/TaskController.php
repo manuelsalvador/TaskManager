@@ -3,8 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
-use App\Models\Role;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Http\Requests\StoreTaskRequest;
+
+use App\Models\Role;
 use App\Models\Task;
 use App\Models\Project;
 use App\Models\User;
@@ -16,15 +21,6 @@ class TaskController extends Controller
 public function __construct(){
     //$this->middleware('auth')->except('index', 'show', 'create', 'store');
 }
-public function PM() {
-
-    return Role::where('role', "Project Manager")->pluck('id')[0];
-}
-
-public function DEV() {
-
-    return Role::where('role', "Developer")->pluck('id')[0];
-}
 
     /**
      * Display a listing of the resource.
@@ -33,13 +29,13 @@ public function DEV() {
      */
     public function index()
     {
-        if(Auth::user()->role == $this->PM()){
+        if(Auth::user()->role == Role::PM()){
             $tasks = Task::get();
-            return view('tasks.index', compact('tasks'));
         }else{
-            $tasks = Task::where('developer_id', Auth::user()->id)->get();
-            return view('tasks.index', compact('tasks'));
+            $tasks = Task::where('user_id', Auth::user()->id)->get();
         }
+        
+        return view('tasks.index', compact('tasks'));
     }
 
     /**
@@ -49,10 +45,14 @@ public function DEV() {
      */
     public function create()
     {
-        if(Auth::user()->role == $this->PM()){        
+        if(Project::get()->count() < 1){
+            return redirect()->back()->with('error', 'You can not insert Tasks without existing Projects!');
+        }
+
+        if(Auth::user()->role == Role::PM()){        
 
             $projects = Project::pluck('title', 'id');
-            $developers = User::where('role',$this->DEV())->pluck('name', 'id');
+            $developers = User::where('role',Role::DEV())->pluck('name', 'id');
             $states = State::pluck('state','id');
             $priorities = Priority::pluck('priority','id');
 
@@ -69,26 +69,19 @@ public function DEV() {
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreTaskRequest $request)
     {
-        if(Auth::user()->role == $this->PM()){
-                $post = new Task;
-                $post->title = $request->input('title');
-                $post->description = $request->input('description');
-                $post->priority = $request->input('priority');
-                $post->developer_id = $request->input('developer_id');
-                $post->project_id = $request->input('project_id');
-                $post->state = $request->input('state');
-                $post->save();
+        if(Auth::user()->role == Role::PM()){
 
-                if($post){
-                    return redirect('tasks');
-                }else{
-                    return redirect('dashboard');
-                }
-            }else{
-                return redirect('dashboard');
+            $validated = $request->validated();
+
+            if($validated){
+                Task::create($validated);
+                return redirect('tasks');
             }
+        }
+
+        return redirect('dashboard');
     }
 
     /**
@@ -100,17 +93,19 @@ public function DEV() {
     public function show($id)
     {
         $task = Task::findOrFail($id);
-        $project = Project::where('id', $task->project_id)->get();//->pluck('title');
-        $developer = User::where('id',$task->developer_id)->get();//->pluck('name');
-        $priority = Priority::where('id', $task->priority)->get();//pluck('priority');
-        $state = State::where('id', $task->state)->get();//->pluck('state');
+        $project = Project::findOrFail($task->project_id);
+        $developer = User::where('id', $task->user_id)->get();
+        $priority = Priority::findOrFail( $task->priority);
+        $state = State::findOrFail($task->state);
 
-        if(Auth::user()->role == $this->PM() || Auth::user()->id == $task->developer_id){
+        if(Auth::user()->role == Role::PM() || Auth::user()->id == $task->user_id){
+
             return view('tasks.show', compact('task','project','developer', 'priority','state'));
         }else{
+
             return redirect('dashboard');
         }
-        
+
     }
 
     /**
@@ -121,26 +116,21 @@ public function DEV() {
      */
     public function edit($id)
     {
-            $task = Task::findOrFail($id);
+        $task = Task::findOrFail($id);
+        $project = Project::get();
+        $developer = User::where('role',Role::DEV())->get();
+        $priority = Priority::get();
+        $state = State::get();
 
-            $projectSelected = Project::where('id', $task->project_id)->get();
-            $project = Project::get();
+        $projectSelected = Project::where('id',$task->project_id)->get();
+        $developerSelected = User::where('id',$task->user_id)->get();
+        $prioritySelected = Priority::where('id',$task->priority)->get();
 
-            $developerSelected = User::where('id',$task->developer_id)->get();
-            $developer = User::where('role',$this->DEV())->get();
-            
-            $prioritySelected = Priority::where('id', $task->priority)->get();
-            $priority = Priority::get();
-            
-            $stateSelected = State::where('id', $task->state)->get();
-            $state = State::get();
-
-            if(Auth::user()->role == $this->PM() || Auth::user()->id == $task->developer_id){
-                return view('tasks.edit', compact('task','project','developer', 'priority','state', 
-                                              'prioritySelected', 'stateSelected', 'developerSelected', 'projectSelected'));
-            }else{
-                return redirect('dashboard');
-            }
+        if(Auth::user()->role == Role::PM() || Auth::user()->id == $task->user_id){
+            return view('tasks.edit', compact('task','project','developer', 'priority','state', 'developerSelected', 'prioritySelected', 'projectSelected'));
+        }else{
+            return redirect('dashboard');
+        }
             
     }
 
@@ -151,33 +141,17 @@ public function DEV() {
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(StoreTaskRequest $request, $id)
     {
         $post = Task::findOrFail($id);
-        if(auth::user()->role == $this->PM()){
-            
-            $post->title = $request->input('title');
-            $post->description = $request->input('description');
-            $post->priority = $request->input('priority');
-            $post->developer_id = $request->input('developer_id');
-            $post->project_id = $request->input('project_id');
-            $post->state = $request->input('state');
-            $post->save();
+        $post->fill($request->validated());
+        $isSaved = $post->save();
 
-            if($post){
-                return redirect('tasks');
-            }else{
-                return redirect('dashboard');
-            }
-        }else{
-            $post->state = $request->input('state');
-            $post->save();
-            if($post){
-                return redirect('tasks');
-            }else{
-                return redirect('dashboard');
-            }
+        if($isSaved){
+            return redirect('tasks');
         }
+
+        return redirect('dashboard');
     }
 
     /**
@@ -188,6 +162,7 @@ public function DEV() {
      */
     public function destroy($id)
     {
-        //
+        Task::where('id', $id)->delete();
+        return redirect('tasks');
     }
 }

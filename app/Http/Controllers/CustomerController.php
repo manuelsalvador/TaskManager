@@ -7,16 +7,14 @@ use Illuminate\Http\Request;
 use App\Models\Customer;
 use App\Models\User;
 use App\Models\Role;
+use App\Http\Requests\StoreCustomerRequest;
+
 
 class CustomerController extends Controller
 {
 
     public function __construct(){
         //$this->middleware('auth')->except('index', 'show', 'create', 'store');
-    }
-    
-    public function PM() {
-        return Role::where('role', "Project Manager")->pluck('id')[0];
     }
 
     /**
@@ -26,7 +24,7 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        if(Auth::user()->role == $this->PM()){
+        if(Auth::user()->role == Role::PM()){
             $customers = Customer::get();
             return view('customers.index', compact('customers'));
         }else{
@@ -41,7 +39,7 @@ class CustomerController extends Controller
      */
     public function create()
     {
-        if(Auth::user()->role == $this->PM()){
+        if(Auth::user()->role == Role::PM()){
             return view('customers.create');
         }else{
             return redirect('dashboard');
@@ -54,25 +52,19 @@ class CustomerController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreCustomerRequest $request)
     {
-        if(Auth::user()->role == $this->PM()){
-            $post = new Customer;
-            $post->name = $request->input('name');
-            $post->surname = $request->input('surname');
-            $post->address = $request->input('address');
-            $post->phone = $request->input('phone');
-            $post->email = $request->input('email');
-            $post->save();
+        if(Auth::user()->role == Role::PM()){
+            
+            $validated = $request->validated();
 
-            if($post){
+            if($validated){
+                Customer::create($validated);
                 return redirect('customers');
-            }else{
-                return redirect('dashboard');
             }
-        }else{
-            return redirect('dashboard');
         }
+
+        return redirect('dashboard');
     }
 
     /**
@@ -83,7 +75,7 @@ class CustomerController extends Controller
      */
     public function show($id)
     {
-        if(Auth::user()->role == $this->PM()){
+        if(Auth::user()->role == Role::PM()){
             $customer = Customer::findOrFail($id);
             return view('customers.show', compact('customer'));
         }else{
@@ -99,7 +91,7 @@ class CustomerController extends Controller
      */
     public function edit($id)
     {
-        if(Auth::user()->role == $this->PM()){
+        if(Auth::user()->role == Role::PM()){
             $customer = Customer::findOrFail($id);
             return view('customers.edit', compact('customer'));
         }else{
@@ -114,25 +106,21 @@ class CustomerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(StoreCustomerRequest $request, $id)
     {
-        if(Auth::user()->role == $this->PM()){
-            $post = Customer::findOrFail($id);
-            $post->name = $request->input('name');
-            $post->surname = $request->input('surname');
-            $post->address = $request->input('address');
-            $post->phone = $request->input('phone');
-            $post->email = $request->input('email');
-            $post->save();
+        if(Auth::user()->role == Role::PM()){
 
-            if($post){
+            $post = Customer::findOrFail($id);
+            $post->fill($request->validated());
+            $isSaved = $post->save();
+
+            if($isSaved){
                 return redirect('customers');
-            }else{
-                return redirect('dashboard');
             }
-        }else{
-            return redirect('dashboard');
+
         }
+
+        return redirect('dashboard');
 
     }
 
@@ -144,6 +132,7 @@ class CustomerController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Customer::where('id', $id)->delete();
+        return redirect('customers');
     }
 }

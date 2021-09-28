@@ -44,7 +44,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <strong>Title *:</strong>
-                                        <input type="text" name="title" class="form-control" placeholder="Title" required value="{{ old('title') }}">
+                                        <input type="text" name="title" class="form-control" placeholder="Title" value="{{ old('title') }}">
                                         @if ($errors->has('title'))
                                             <span class="text-danger">{{ $errors->first('title') }}</span>
                                         @endif
@@ -63,7 +63,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                     <strong>Customer *:</strong>
-                                        <select class="form-control" required name="customer_id">
+                                        <select class="form-control" name="customer_id">
                                             @foreach ($customers as $key)
                                                 <option value="{{ $key->id }}"> 
                                                     {{ $key->name }} {{$key->surname}} 

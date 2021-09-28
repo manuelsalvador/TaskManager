@@ -44,7 +44,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <strong>Title *:</strong>
-                                        <input type="text" name="title" class="form-control" placeholder="Title" required value="{{ old('title') }}">
+                                        <input type="text" name="title" class="form-control" placeholder="Title" value="{{ old('title') }}">
                                         @if ($errors->has('title'))
                                             <span class="text-danger">{{ $errors->first('title') }}</span>
                                         @endif
@@ -62,19 +62,19 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                     <strong>Priority *:</strong>
-                                    <select name="priority" id="priority" required class="form-control">
-                                    @foreach ($priorities as $key => $value)
-                                                <option value="{{ $key }}"> 
-                                                    {{ $value }} 
-                                                </option>
-                                            @endforeach 
+                                    <select name="priority" id="priority" class="form-control">
+                                        @foreach ($priorities as $key => $value)
+                                            <option value="{{ $key }}"> 
+                                                {{ $value }} 
+                                            </option>
+                                        @endforeach 
                                     </select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                     <strong>State *:</strong>
-                                    <select name="state" id="state" required class="form-control">
+                                    <select name="state" id="state" class="form-control">
                                     @foreach ($states as $key => $value)
                                             <option value="{{ $key }}"> 
                                                 {{ $value }} 
@@ -87,7 +87,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                     <strong>Project *:</strong>
-                                        <select class="form-control" required name="project_id">
+                                        <select class="form-control" name="project_id">
+                                        <option></option>
                                             @foreach ($projects as $key => $value)
                                                 <option value="{{ $key }}"> 
                                                     {{ $value }} 
@@ -99,8 +100,9 @@
 
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                    <strong>Developer *:</strong>
-                                        <select class="form-control" required name="developer_id">
+                                    <strong>Developer:</strong>
+                                        <select class="form-control" name="user_id">
+                                            <option></option>
                                             @foreach ($developers as $key => $value)
                                                 <option value="{{ $key }}"> 
                                                     {{ $value }} 

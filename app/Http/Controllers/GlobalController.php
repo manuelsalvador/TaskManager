@@ -14,10 +14,6 @@ use App\Models\Customer;
 class GlobalController extends Controller
 {
 
-    public function DEV() {
-        return Role::where('role', "Developer")->pluck('id')[0];
-    }
-
     /**
      * Display a listing of the resource.
      *
@@ -27,7 +23,7 @@ class GlobalController extends Controller
     {
         $tasks = Task::get();
         $projects = Project::get();
-        $users = User::where('role',$this->DEV())->get();
+        $users = User::where('role',Role::DEV())->get();
         $priorities = Priority::get();
         $states = State::get();
         $roles = Role::get();

@@ -188612,13 +188612,13 @@ ul .list-group-item{
     font-weight: lighter;
 }
 
-ul a:hover{
+ul a li:hover{
     background-color: #17A2B8 !important;
     text-decoration: none;
+    color: #FFFFFF;
 }
 
-ul a:hover li {
-    color: #FFFFFF;
+ul a:hover {
     text-decoration: none;
 }
 
